@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- macOS LaunchAgent: optional address-discovery service on port 8749.
+     Only needed if you use ADDRESS AUTO-DISCOVERY (see docs/REMOTE-ACCESS.md).
+     Install: edit __HOME__, cp to ~/Library/LaunchAgents/, then launchctl load. -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.user.hermes-addr-server</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/python3</string>
+        <string>__HOME__/path/to/hermes-studio-android-wrapper/scripts/tunnel/addr-server.py</string>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PORT</key>
+        <string>8749</string>
+        <key>URL_FILE</key>
+        <string>__HOME__/.hermes-tunnel-url.txt</string>
+    </dict>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>__HOME__/.hermes-addr-server.log</string>
+    <key>StandardErrorPath</key>
+    <string>__HOME__/.hermes-addr-server.log</string>
+</dict>
+</plist>

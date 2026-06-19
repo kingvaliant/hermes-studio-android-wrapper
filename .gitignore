@@ -1,0 +1,11 @@
+# local config (contains your paths/URLs — never commit)
+config.sh
+
+# build artifacts
+*.apk
+www/
+dist-build/
+
+# os cruft
+.DS_Store
+._*

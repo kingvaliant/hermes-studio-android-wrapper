@@ -1,0 +1,13 @@
+{
+  "appId": "com.example.hermesclient",
+  "appName": "Hermes",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": true
+  },
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true,
+    "allowNavigation": ["*"]
+  }
+}

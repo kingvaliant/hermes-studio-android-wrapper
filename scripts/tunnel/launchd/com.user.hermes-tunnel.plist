@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- macOS LaunchAgent: keep the Cloudflare quick tunnel running.
+     Install:
+       1) edit the two __HOME__ paths below to your home dir
+       2) cp this to ~/Library/LaunchAgents/com.user.hermes-tunnel.plist
+       3) launchctl load ~/Library/LaunchAgents/com.user.hermes-tunnel.plist
+     A LaunchAgent (user-level) is enough — cloudflared only needs
+     outbound 443/QUIC, no root, no TUN device. -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.user.hermes-tunnel</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>__HOME__/path/to/hermes-studio-android-wrapper/scripts/tunnel/tunnel-start.sh</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>__HOME__/.hermes-tunnel-launchd.log</string>
+    <key>StandardErrorPath</key>
+    <string>__HOME__/.hermes-tunnel-launchd.log</string>
+</dict>
+</plist>

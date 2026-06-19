@@ -1,0 +1,21 @@
+# systemd user units (Linux) for the tunnel + optional address service.
+# Install:
+#   mkdir -p ~/.config/systemd/user
+#   cp hermes-tunnel.service hermes-addr-server.service ~/.config/systemd/user/
+#   (edit ExecStart paths) then:
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now hermes-tunnel.service
+#   systemctl --user enable --now hermes-addr-server.service   # optional
+
+# ---------- hermes-tunnel.service ----------
+[Unit]
+Description=Hermes Cloudflare quick tunnel
+After=network-online.target
+
+[Service]
+ExecStart=%h/path/to/hermes-studio-android-wrapper/scripts/tunnel/tunnel-start.sh
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

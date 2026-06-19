@@ -1,3 +1,5 @@
+**English** | [中文](README.zh-CN.md)
+
 # Hermes Studio → Android (thin-client wrapper)
 
 Wrap the [Hermes Studio](https://github.com/EKKOLearnAI/hermes-studio) web

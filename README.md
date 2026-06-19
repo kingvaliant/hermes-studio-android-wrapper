@@ -1,54 +1,53 @@
-**English** | [中文](README.zh-CN.md)
+**中文** | [English](README.en.md)
 
-# Hermes Studio → Android (thin-client wrapper)
+# Hermes Studio → 安卓（瘦客户端封装）
 
-Wrap the [Hermes Studio](https://github.com/EKKOLearnAI/hermes-studio) web
-UI into a tap-to-open **Android app** — a thin [Capacitor](https://capacitorjs.com/)
-WebView shell that **bundles the frontend into the APK** (so the first screen
-opens instantly) while talking to your **remote Hermes server** for live data.
+把 [Hermes Studio](https://github.com/EKKOLearnAI/hermes-studio) 的 Web 界面
+封装成一个点开即用的**安卓 App**——一个基于 [Capacitor](https://capacitorjs.com/)
+的轻量 WebView 壳，**把前端打进 APK**（首屏秒开），同时连接你的**远程 Hermes
+服务器**取实时数据。
 
-You get: an app icon, persistent login, mobile layout, no browser, no
-re-authentication — without running any server on the phone.
+你得到的是：一个 App 图标、长期保持登录、移动端排版、无需开浏览器、无需反复
+认证——而且手机上不用跑任何服务器。
 
-> This project wraps the **web UI** of the upstream desktop/web project
-> [`EKKOLearnAI/hermes-studio`](https://github.com/EKKOLearnAI/hermes-studio).
-> It does not fork or modify it; it repackages the already-built frontend.
+> 本项目封装的是上游桌面/Web 项目
+> [`EKKOLearnAI/hermes-studio`](https://github.com/EKKOLearnAI/hermes-studio)
+> 的 **Web 界面**。它不 fork、不修改上游，只是把已构建好的前端重新打包。
 
 ---
 
-## Why "bundle the frontend", not just point a WebView at the server?
+## 为什么要"把前端打进 APK"，而不是让 WebView 直接指向服务器？
 
-A naïve WebView that loads `https://your-server/` downloads ~1.5 MB of JS on
-every cold start. Over a slow/!jittery remote link that can take many seconds.
+一个朴素的 WebView 直接加载 `https://你的服务器/`，每次冷启动都要下载约
+1.5 MB 的 JS。在又慢又抖的远程链路上，首屏可能要等好几秒。
 
-This wrapper instead **copies the built frontend into the APK** and loads it
-from `https://localhost`. The first screen is then **local = instant**. Only
-live API calls (switch chat, history, sync, websocket) go to the remote server.
-The frontend already supports a configurable API base via the `localStorage`
-key `hermes_server_url`, so front-end and back-end are cleanly decoupled.
+本封装改为**把构建好的前端拷进 APK**，从 `https://localhost` 本地加载。首屏
+即本地 = 秒开。只有实时 API 调用（切换会话、历史、同步、websocket）才走远程
+服务器。前端本身支持通过 `localStorage` 的 `hermes_server_url` 键配置 API 地址，
+因此前后端是干净解耦的。
 
 ```
-┌─────────────────────────── Android phone ───────────────────────────┐
-│  APK                                                                 │
-│   • frontend bundled, loads from  https://localhost   (instant)      │
-│   • localStorage.hermes_server_url ──► REMOTE_API (your server)      │
-└───────────────────────────────┬──────────────────────────────────────┘
-                                 │  live API / websocket
+┌─────────────────────────── 安卓手机 ───────────────────────────┐
+│  APK                                                          │
+│   • 前端打进 APK，从 https://localhost 本地加载（秒开）          │
+│   • localStorage.hermes_server_url ──► REMOTE_API（你的服务器） │
+└───────────────────────────────┬───────────────────────────────┘
+                                 │  实时 API / websocket
                                  ▼
-                    your running Hermes server  (:8748)
+                    你运行中的 Hermes 服务器（:8748）
 ```
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for details.
+详见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)（英文）。
 
 ---
 
-## Quick start
+## 快速开始
 
-### One-time setup
-1. **Install build tools** (local machine): Node.js + npm, JDK 21, Android SDK,
-   and `adb` (optional, for install). On macOS: `brew install node openjdk@21`
-   and Android Studio for the SDK.
-2. **Create the Capacitor project once** (this holds the Android Gradle project):
+### 一次性设置
+1. **安装构建工具**（本机）：Node.js + npm、JDK 21、Android SDK，以及
+   `adb`（可选，用于安装）。macOS：`brew install node openjdk@21`，SDK 用
+   Android Studio 安装。
+2. **创建一次 Capacitor 工程**（它承载安卓 Gradle 工程）：
    ```bash
    mkdir hermes-android && cd hermes-android
    npm init -y
@@ -57,73 +56,69 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for details.
    mkdir www && echo "placeholder" > www/index.html
    npx cap add android
    ```
-   Then copy this repo's `android/capacitor.config.json` over the generated one
-   (adjust `appId`/`appName` to match your `config.sh`).
-3. **Configure**:
+   然后用本仓库的 `android/capacitor.config.json` 覆盖生成的那个
+   （把 `appId`/`appName` 改成与 `config.sh` 一致）。
+3. **配置**：
    ```bash
    cp config.example.sh config.sh
-   $EDITOR config.sh        # set STUDIO_DIST, REMOTE_API, CAP_PROJECT, APP_ID...
+   $EDITOR config.sh        # 设置 STUDIO_DIST、REMOTE_API、CAP_PROJECT、APP_ID...
    ```
 
-### Build (repeat after every Hermes Studio upgrade)
+### 构建（每次 Hermes Studio 升级后重跑）
 ```bash
 ./build.sh
 ```
-This copies the latest frontend, injects your API URL, patches the two
-hard-coded auth fetches (needed for local-load), syncs into the Capacitor
-project, runs `gradle assembleDebug`, and (optionally) installs via `adb`.
+脚本会：拷取最新前端 → 注入你的 API 地址 → 修补两处写死的 auth 请求（本地加载
+必需）→ 同步进 Capacitor 工程 → 跑 `gradle assembleDebug` →（可选）adb 安装。
 
-### Server side (once)
-Set CORS on your Hermes server so the local-load app is allowed:
+### 服务器端（一次）
+在 Hermes 服务器上设置 CORS，放行本地加载的 App：
 ```
 CORS_ORIGINS=https://localhost,capacitor://localhost,http://localhost
 ```
-Because the app's page origin is **always** `https://localhost`, this list
-**never changes** even if your remote API URL changes. Restart the server.
+由于 App 页面来源**永远**是 `https://localhost`，**即使你的远程 API 地址变化，
+这个列表也不用改**。改完重启服务器。
 
 ---
 
-## Reaching the server from the phone
+## 让手机够到服务器
 
-`REMOTE_API` is just "how the phone reaches your Hermes server". Options, from
-simplest to most capable — full trade-offs in
-[docs/REMOTE-ACCESS.md](docs/REMOTE-ACCESS.md):
+`REMOTE_API` 就是"手机如何访问你的 Hermes 服务器"。从简到繁的选项，完整权衡见
+[docs/REMOTE-ACCESS.md](docs/REMOTE-ACCESS.md)（英文）：
 
-| Path | Phone on same WiFi? | Public IP needed? | Notes |
+| 方式 | 手机需同 WiFi？ | 需公网 IP？ | 说明 |
 |---|---|---|---|
-| **LAN IP** | yes | no | simplest; only works on the same network |
-| **Cloudflare quick tunnel** | no | **no** | free, works behind NAT, **URL rotates** (helper + auto-discovery solve this) |
-| **Tailscale / mesh VPN** | no | no | stable private IP; relay may route abroad and add latency |
-| **Named tunnel / own domain** | no | no | stable public URL; needs a (cheap) domain |
+| **局域网 IP** | 是 | 否 | 最简单；仅同网络可用 |
+| **Cloudflare 快速隧道** | 否 | **否** | 免费、可穿透 NAT、**地址会变**（隧道脚本 + 地址自动发现解决） |
+| **Tailscale / mesh VPN** | 否 | 否 | 稳定的虚拟内网 IP；中继可能绕境外、增加延迟 |
+| **命名隧道 / 自有域名** | 否 | 否 | 稳定公网地址；需要一个（便宜的）域名 |
 
-For the **cellular / different-network** case with **zero cost and no public
-IP**, the included Cloudflare-tunnel helper (`scripts/tunnel/`) is the
-recommended path. Its one rough edge — the URL changes on restart — is handled
-by the optional **address auto-discovery** feature (see REMOTE-ACCESS).
+对于**蜂窝流量 / 异地网络**且**零成本、无公网 IP**的场景，推荐用内置的
+Cloudflare 隧道脚本（`scripts/tunnel/`）。它唯一的小毛病——地址重启会变——由可选的
+**地址自动发现**功能解决（见 REMOTE-ACCESS）。
 
 ---
 
-## Repo layout
+## 仓库结构
 ```
-build.sh                     one-command repackage (idempotent)
-config.example.sh            copy to config.sh and edit
+build.sh                     一条命令重新打包（幂等）
+config.example.sh            拷成 config.sh 后编辑
 android/
-  MainActivity.java          thin-client shell (toolbar, url switcher, auto-discovery)
-  capacitor.config.json      Capacitor config template
+  MainActivity.java          瘦客户端壳（工具栏、地址切换、自动发现）
+  capacitor.config.json      Capacitor 配置模板
 scripts/tunnel/
-  tunnel-start.sh            Cloudflare quick tunnel + publish URL to a file
-  addr-server.py             optional: serve current URL for auto-discovery
-  launchd/                   macOS LaunchAgents + Linux systemd units
+  tunnel-start.sh            Cloudflare 快速隧道 + 把地址写入文件
+  addr-server.py             可选：返回当前地址，供自动发现
+  launchd/                   macOS LaunchAgent + Linux systemd 单元
 docs/
-  ARCHITECTURE.md            how/why the local-load split works
-  REMOTE-ACCESS.md           LAN / tunnel / VPN / domain trade-offs + auto-discovery
-  TROUBLESHOOTING.md         common failures and fixes
+  ARCHITECTURE.md            本地加载拆分的原理（英文）
+  REMOTE-ACCESS.md           LAN / 隧道 / VPN / 域名 权衡 + 自动发现（英文）
+  TROUBLESHOOTING.md         常见故障与修复（英文）
 ```
 
 ---
 
-## Credits & license
-- Upstream web UI: [`EKKOLearnAI/hermes-studio`](https://github.com/EKKOLearnAI/hermes-studio).
-- This wrapper is provided as-is under the MIT license (see `LICENSE`). It does
-  not redistribute the Hermes Studio frontend — you build the APK from your own
-  installed copy.
+## 致谢与许可
+- 上游 Web 界面：[`EKKOLearnAI/hermes-studio`](https://github.com/EKKOLearnAI/hermes-studio)。
+- 本封装按 MIT 许可提供（见 `LICENSE`）。它不重新分发 Hermes Studio 前端——
+  APK 由你从自己安装的副本构建。
